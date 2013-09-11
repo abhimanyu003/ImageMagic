@@ -188,6 +188,8 @@ class Image
         $this->im->setCompressionQuality($quality);
         $this->im->setImageFormat($type);
         $this->im->writeImage(__DIR__ . DIRECTORY_SEPARATOR . $file);
+		
+		return $file;
     }
 
     /**
