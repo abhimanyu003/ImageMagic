@@ -245,6 +245,30 @@ class Image
         return $this;
     }
 
+    protected function _enlargeSafeResize($width, $height)
+    {
+        $imageWidth = $this->im->getImageWidth();
+        $imageHeight = $this->im->getImageHeight();
+
+        if ($imageWidth >= $imageHeight) {
+            if ($imageWidth <= $width && $imageHeight <= $height)
+                return $this->_thumbnailImage($imageWidth, $imageHeight);
+            $wRatio = $width / $imageWidth;
+            $hRatio = $height / $imageHeight;
+        } else {
+            if ($imageHeight <= $width && $imageWidth <= $height)
+                return $this->_thumbnailImage($imageWidth, $imageHeight); // no resizing required
+            $wRatio = $height / $imageWidth;
+            $hRatio = $width / $imageHeight;
+        }
+        $resizeRatio = Min($wRatio, $hRatio);
+
+        $newHeight = $imageHeight * $resizeRatio;
+        $newWidth = $imageWidth * $resizeRatio;
+
+        return $this->_thumbnailImage($newWidth, $newHeight);
+    }
+
     protected function _thumbnailImage($width, $height)
     {
         $this->im->thumbnailImage($width, $height);

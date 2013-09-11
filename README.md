@@ -26,15 +26,18 @@ The methods available are:
 * `resizeImage($width, $height)`: resizes the image, will orce the image to
    be exactly $width by $height
 
+* `enlargeSafeResize($width, $height)`: resizes the image keep aspect ratio, will never enlarge the image nor canvas.
+
 
 
 Saving the image
 ----------------
-You save the image in give forma
+You save the image with `save($imageName,$format,$qualit)` method.
     
     
     <?php
-    
+    use abhimanyusharma003\Image\Image;
+
     Image::open('in.png')->save('out.jpg','jpg',100);
 
 
@@ -56,6 +59,6 @@ This will re-size you image on the fly
 Development
 ===========
 
-Most of the codes of this libeary are take from [https://github.com/Gregwar/Image](https://github.com/Gregwar/Image "Gregwar/Image") class it's based on PHP GD libaray.
+Most of the codes of this library are taken from [https://github.com/Gregwar/Image](https://github.com/Gregwar/Image "Gregwar/Image") class it's based on PHP GD library.
 
 Do not hesitate to fork this repository and customize it !
