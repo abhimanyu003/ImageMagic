@@ -172,7 +172,7 @@ class Image
         return array($actualFile, $file);
     }
 
-    public function save($file, $type = 'jpg', $quality = 80,$background = NULL)
+    public function save($file, $type = 'jpg', $quality = 80)
     {
         if ($file) {
             $directory = dirname($file);
@@ -182,14 +182,18 @@ class Image
             }
         }
 
-
         $this->applyOperations();
+        if ($type == 'jpg') {
+            $this->im->setImageBackgroundColor('white');
+            $this->im->flattenImages();
+            $this->im = $this->im->flattenImages();
+            $this->im->setCompressionQuality($quality);
+        }
 
-        $this->im->setCompressionQuality($quality);
         $this->im->setImageFormat($type);
         $this->im->writeImage(__DIR__ . DIRECTORY_SEPARATOR . $file);
-		
-		return $file;
+
+        return $file;
     }
 
     /**
