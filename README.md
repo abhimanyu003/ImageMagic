@@ -8,14 +8,16 @@ Usage
 
 Using methods chaining, you can open, transform and save a file in a single line:
 
-    <?php
-    require_once('ImageMagic.php');
+```php
+<?php
+require_once('ImageMagic.php');
+  
+use abhimanyusharma003\Image\Image;
     
-    use abhimanyusharma003\Image\Image;
-    
-    Image::open('in.png')
-			->resizeImage(100, 100)	
-    				->save('out.jpg');
+Image::open('in.png')
+    ->resizeImage(100, 100)
+    ->save('out.jpg');
+```
 
 The methods available are:
 
@@ -33,17 +35,17 @@ The methods available are:
 Saving the image
 ----------------
 You save the image with `save($imageName,$format,$qualit)` method.
-    
-    
-    <?php
-    use abhimanyusharma003\Image\Image;
 
-    Image::open('in.png')->save('out.jpg','jpg',100);
+```php
+<?php
+use abhimanyusharma003\Image\Image;
 
+Image::open('in.png')->save('out.jpg','jpg',100);
+```
 
 
 Resize On the Fly
------------
+-----------------
 
 Each operation above is not actually applied on the opened image, but added in an operations
 array. This operation array, the name, type and modification time of file are hashed using
@@ -51,8 +53,9 @@ array. This operation array, the name, type and modification time of file are ha
 
 If cache file already present no operation will be executed
 
-    Image::open('in.png')->resizeImage(200,200)->jpeg();
-
+```php
+Image::open('in.png')->resizeImage(200,200)->jpeg();
+```
 
 This will re-size you image on the fly
 
@@ -61,4 +64,4 @@ Development
 
 Most of the codes of this library are taken from [https://github.com/Gregwar/Image](https://github.com/Gregwar/Image "Gregwar/Image") class it's based on PHP GD library.
 
-Do not hesitate to fork this repository and customize it !
+Do not hesitate to fork this repository and customize it!
