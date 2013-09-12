@@ -187,7 +187,8 @@ class Image
             $this->im->setImageBackgroundColor('white');
             $this->im->flattenImages();
             $this->im = $this->im->flattenImages();
-            $this->im->setCompressionQuality($quality);
+            $this->im->setImageCompression(\Imagick::COMPRESSION_JPEG);
+            $this->im->setImageCompressionQuality($quality);
         }
 
         $this->im->setImageFormat($type);
