@@ -277,7 +277,15 @@ class Image
 
     protected function _cropThumbnailImage($width, $height)
     {
-        $this->im->cropThumbnailImage($width, $height);
+        $geo = $this->im->getImageGeometry();
+
+        if (($geo['width'] / $width) < ($geo['height'] / $height)) {
+            $this->im->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
+        } else {
+            $this->im->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+        }
+
+        $this->im->ThumbnailImage($width, $height, true);
         return $this;
     }
 
