@@ -39,7 +39,7 @@ class Image
 
     public static function open($path)
     {
-        return new image($path);
+        return new Image($path);
     }
 
     public function jpeg($quality = 80)
