@@ -9,55 +9,37 @@ namespace abhimanyusharma003\Image;
 class Image
 {
 
-    /**
-     * Image on which processing orccurs
-     */
-    protected $im;
-    /**
-     * Direcory to use for file caching
-     */
     protected $cacheDir = 'cache/images';
-    /**
-     * The actual cache dir
-     */
     protected $actualCacheDir = null;
-    /**
-     * Pretty name for the image
-     */
-    protected $prettyName = '';
-    /**
-     * Transformations hash
-     */
-    protected $hash = null;
-    /**
-     * File
-     */
-    protected $file = NULL;
-    /**
-     * Image data
-     */
-    protected $data = null;
-    protected $width = null;
-    protected $height = null;
+    protected $image = NULL;
+    protected $format = NULL;
+    protected $originalFile = NULL;
+    protected $data = NULL;
+    protected $width = NULL;
+    protected $height = NULL;
     protected $operations = array();
+    protected $prettyName = '';
+    protected $hash = NULL;
+    protected $file = NULL;
 
-    public function __construct($originalFile = null, $width = null, $height = null)
+
+    public function __construct($path = NULL, $width = NULL, $height = NULL)
     {
-        $this->file = $originalFile;
+        $this->file = $path;
         $this->width = $width;
         $this->height = $height;
-
 
         if (!(extension_loaded('imagick'))) {
             throw new \RuntimeException('You need to install Imagick PHP Extension OR use http://github.com/Gregwar/Image library');
         }
-        $this->im = new \Imagick(__DIR__ . DIRECTORY_SEPARATOR . $this->file);
 
+        $this->image = new \Imagick(__DIR__ . DIRECTORY_SEPARATOR . $path);
+        $this->format = $this->image->getImageFormat();
     }
 
-    public static function open($file = '')
+    public static function open($path)
     {
-        return new Image($file);
+        return new image($path);
     }
 
     public function jpeg($quality = 80)
@@ -73,6 +55,11 @@ class Image
     public function gif()
     {
         return $this->cacheFile('gif');
+    }
+
+    public function guess()
+    {
+        return $this->cacheFile($this->format);
     }
 
     public function cacheFile($type = 'jpg', $quality = 80)
@@ -172,34 +159,6 @@ class Image
         return array($actualFile, $file);
     }
 
-    public function save($file, $type = 'jpg', $quality = 80)
-    {
-        if ($file) {
-            $directory = dirname($file);
-
-            if (!is_dir($directory)) {
-                @mkdir($directory, 0777, true);
-            }
-        }
-
-        $this->applyOperations();
-        if ($type == 'jpg') {
-            $this->im->setImageBackgroundColor('white');
-            $this->im->flattenImages();
-            $this->im = $this->im->flattenImages();
-            $this->im->setImageCompression(\Imagick::COMPRESSION_JPEG);
-            $this->im->setImageCompressionQuality($quality);
-        }
-
-        $this->im->setImageFormat($type);
-        $this->im->writeImage(__DIR__ . DIRECTORY_SEPARATOR . $file);
-
-        return $file;
-    }
-
-    /**
-     * Applies the operations
-     */
     public function applyOperations()
     {
         // Renders the effects
@@ -239,17 +198,44 @@ class Image
         $this->operations[] = array($method, $args);
     }
 
-
-    protected function _cropImage($width, $height, $x = null, $y = null)
+    public function save($file, $type = 'jpg', $quality = 80)
     {
-        $this->im->cropImage($width, $height, $x, $y);
-        return $this;
+        if ($file) {
+            $directory = dirname($file);
+
+            if (!is_dir($directory)) {
+                @mkdir($directory, 0777, true);
+            }
+        }
+
+        $this->applyOperations();
+        $this->image->setImageCompressionQuality($quality);
+
+        if ($type == 'JPG' || $type == 'jpg') {
+            $this->image->setImageBackgroundColor('white');
+            $this->image->flattenImages();
+            $this->image = $this->image->flattenImages();
+            $this->image->setImageCompression(\Imagick::COMPRESSION_JPEG);
+        }
+
+
+        if ($type == 'GIF' || $type == 'gif') {
+            $this->image->setImageFormat($type);
+            $file = preg_replace('/[^\.]*$/', '', $file);
+            return $this->image->writeImages(__DIR__ . DIRECTORY_SEPARATOR . $file . 'gif', true) === true;
+        }
+
+        $this->image->setImageFormat($type);
+        $file = preg_replace('/[^\.]*$/', '', $file);
+        $this->image->writeImage(__DIR__ . DIRECTORY_SEPARATOR . $file . strtolower($type));
+
+        return $file;
     }
 
     protected function _enlargeSafeResize($width, $height)
     {
-        $imageWidth = $this->im->getImageWidth();
-        $imageHeight = $this->im->getImageHeight();
+        $imageWidth = $this->image->getImageWidth();
+        $imageHeight = $this->image->getImageHeight();
 
         if ($imageWidth >= $imageHeight) {
             if ($imageWidth <= $width && $imageHeight <= $height)
@@ -272,29 +258,77 @@ class Image
 
     protected function _thumbnailImage($width, $height)
     {
-        $this->im->thumbnailImage($width, $height);
+        if ($this->format == 'GIF' || $this->format == 'gif') {
+            foreach ($this->image as $frame) {
+                $this->image->thumbnailImage($width, $height);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->thumbnailImage($width, $height);
+        }
+        return $this;
+    }
+
+    protected function _cropImage($width, $height, $x = null, $y = null)
+    {
+        if ($this->format == 'GIF' || $this->format == 'gif') {
+            foreach ($this->image as $frame) {
+                $this->image->cropImage($width, $height, $x, $y);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->cropImage($width, $height, $x, $y);
+        }
         return $this;
     }
 
     protected function _cropThumbnailImage($width, $height)
     {
-        $geo = $this->im->getImageGeometry();
+        $geo = $this->image->getImageGeometry();
 
         if (($geo['width'] / $width) < ($geo['height'] / $height)) {
-            $this->im->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
-        } else {
-            $this->im->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
-        }
 
-        $this->im->ThumbnailImage($width, $height, true);
+            if ($this->format == 'GIF' || $this->format == 'gif') {
+                foreach ($this->image as $frame) {
+                    $this->image->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
+                    $frame->setImagePage($width, $height, 0, 0);
+                }
+            } else {
+                $this->image->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
+            }
+        } else {
+            if ($this->format == 'GIF' || $this->format == 'gif') {
+                foreach ($this->image as $frame) {
+                    $this->image->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+                    $frame->setImagePage($width, $height, 0, 0);
+                }
+            } else {
+                $this->image->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+            }
+        }
+        if ($this->format == 'GIF' || $this->format == 'gif') {
+            foreach ($this->image as $frame) {
+                $this->image->ThumbnailImage($width, $height, true);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->ThumbnailImage($width, $height, true);
+        }
         return $this;
     }
+
 
     protected function _resizeImage($width, $height, $filter = \imagick::DISPOSE_NONE, $blur = NULL)
     {
-        $this->im->resizeImage($width, $height, $filter, $blur);
+        if ($this->format == 'GIF' || $this->format == 'gif') {
+            foreach ($this->image as $frame) {
+                $this->image->resizeImage($width, $height, $filter, $blur);
+                $frame->setImagePage($width, $height, 0, 0);
+            }
+        } else {
+            $this->image->resizeImage($width, $height, $filter, $blur);
+        }
         return $this;
     }
-
 
 }
