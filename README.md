@@ -59,6 +59,22 @@ Image::open('in.png')->resizeImage(200,200)->jpeg();
 
 This will re-size you image on the fly
 
+Using with composer
+===================
+
+This repository is available with composer under the name `abhimanyusharma003/image`, so simply add this to
+your requires :
+
+```
+    "requires": {
+        ...
+        "abhimanyusharma003/image": "dev-master"
+        ...
+    }
+```
+
+And update your dependencies, you'll be able to use the composer autoloader to load the class
+
 Development
 ===========
 
