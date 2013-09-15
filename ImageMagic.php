@@ -59,7 +59,7 @@ class Image
 
     public function guess()
     {
-        return $this->cacheFile($this->format);
+        return $this->cacheFile(strtolower($this->format));
     }
 
     public function cacheFile($type = 'jpg', $quality = 80)
