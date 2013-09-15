@@ -1,0 +1,22 @@
+{
+    "name": "abhimanyusharma003\Image",
+    "description": "Image handling",
+    "keywords": ["image", "imagick"],
+    "homepage": "https://github.com/abhimanyusharma003/ImageMagic",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Abhimanyu Sharma",
+            "email": "abhimanyusharma003@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+    },
+    "target-dir": "abhimanyusharma003/Image",
+    "autoload": {
+        "psr-0": {
+            "abhimanyusharma003\\Image": ""
+        }
+    }
+}
