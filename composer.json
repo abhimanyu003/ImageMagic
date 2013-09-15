@@ -11,9 +11,9 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
+        "php": ">=5.3.0"
     },
-    "target-dir": "abhimanyusharma003/ImageMagic",
+    "target-dir": "abhimanyusharma003/Image",
     "autoload": {
         "psr-0": {
             "abhimanyusharma003\\Image": ""
