@@ -10,7 +10,7 @@ class Image
 {
 
     protected $cacheDir = 'cache/images';
-    protected $actualCacheDir = null;
+    protected $actualCacheDir = NULL;
     protected $image = NULL;
     protected $format = NULL;
     protected $originalFile = NULL;
@@ -80,7 +80,7 @@ class Image
 
     public function getHash($type = 'guess', $quality = 80)
     {
-        if (null === $this->hash) {
+        if (NULL === $this->hash) {
             $this->generateHash();
         }
 
@@ -135,7 +135,7 @@ class Image
     {
         $directory = $this->cacheDir;
 
-        if ($this->actualCacheDir === null) {
+        if ($this->actualCacheDir === NULL) {
             $actualDirectory = $directory;
         } else {
             $actualDirectory = $this->actualCacheDir;
@@ -204,7 +204,7 @@ class Image
             $directory = dirname($file);
 
             if (!is_dir($directory)) {
-                @mkdir($directory, 0777, true);
+                @mkdir($directory, 0777, TRUE);
             }
         }
 
@@ -222,7 +222,7 @@ class Image
         if ($type == 'GIF' || $type == 'gif') {
             $this->image->setImageFormat($type);
             $file = preg_replace('/[^\.]*$/', '', $file);
-            return $this->image->writeImages(__DIR__ . DIRECTORY_SEPARATOR . $file . 'gif', true) === true;
+            return $this->image->writeImages(__DIR__ . DIRECTORY_SEPARATOR . $file . 'gif', TRUE) === TRUE;
         }
 
         $this->image->setImageFormat($type);
@@ -269,7 +269,7 @@ class Image
         return $this;
     }
 
-    protected function _cropImage($width, $height, $x = null, $y = null)
+    protected function _cropImage($width, $height, $x = NULL, $y = NULL)
     {
         if ($this->format == 'GIF' || $this->format == 'gif') {
             foreach ($this->image as $frame) {
@@ -297,22 +297,24 @@ class Image
                 $this->image->cropImage($geo['width'], floor($height * $geo['width'] / $width), 0, (($geo['height'] - ($height * $geo['width'] / $width)) / 2));
             }
         } else {
+            $ceil = ceil($width * $geo['height'] / $height);
+            $width = (($geo['width'] - ($width * $geo['height'] / $height)) / 2);
             if ($this->format == 'GIF' || $this->format == 'gif') {
                 foreach ($this->image as $frame) {
-                    $this->image->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+                    $this->image->cropImage($ceil, $geo['height'], $width, 0);
                     $frame->setImagePage($width, $height, 0, 0);
                 }
             } else {
-                $this->image->cropImage(ceil($width * $geo['height'] / $height), $geo['height'], (($geo['width'] - ($width * $geo['height'] / $height)) / 2), 0);
+                $this->image->cropImage($ceil, $geo['height'], $width, 0);
             }
         }
         if ($this->format == 'GIF' || $this->format == 'gif') {
             foreach ($this->image as $frame) {
-                $this->image->ThumbnailImage($width, $height, true);
+                $this->image->ThumbnailImage($width, $height, TRUE);
                 $frame->setImagePage($width, $height, 0, 0);
             }
         } else {
-            $this->image->ThumbnailImage($width, $height, true);
+            $this->image->ThumbnailImage($width, $height, TRUE);
         }
         return $this;
     }
